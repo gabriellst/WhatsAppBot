@@ -15,10 +15,10 @@ def browser_anonimo():
     dir_path = os.getcwd()
     profile = os.path.join(dir_path, "profile", "wpp2")
 
-    # options.add_argument("window-size=1280,720")
+    options.add_argument("window-size=1280,720")
 
-    # options.add_argument(
-    #    r"user-data-dir={}".format(profile))
+    options.add_argument(
+        r"user-data-dir={}".format(profile))
 
     options.add_argument(
         "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -262,7 +262,7 @@ class Bot:
 
         # We iterate through all messages, starting from the last one sent to the output contact.
         for index in range(next_msg_index, messages_quantity):
-            if messages_divs[index] is None:
+            if messages_split_list[index] is None:
                 continue
 
             outputmsg_holder = messages_split_list[index]
@@ -426,13 +426,13 @@ class Bot:
         return reply_msg
 
     def get_replies(self, html_code):
-        '''if html_code.find("_1RPCB") != -1:
-            pass
-
-        else:'''
 
         html_list = html_code.split('>')
-        replied_msg = html_list[html_list.index('<div class=\"hooVq color-1\" role=\"button\"') + 6]
+        try:
+            replied_msg = html_list[html_list.index('<div class=\"hooVq color-1\" role=\"button\"') + 6]
+        except:
+            replied_msg = html_list[html_list.index('<div class=\"hooVq color-2\" role=\"button\"') + 6]
+
         reply_msg = html_list[html_list.index('<div class="_1Gy50"') + 3]
         # removing </span from the strings, span occupies the 6 last strings
         reply_msg = reply_msg[:-6]

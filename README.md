@@ -1,4 +1,4 @@
-# WhatsApp Auto Message Fowarder Bot - Alpha v1.0.0
+# WhatsApp Auto Message Fowarder Bot - Alpha v1.0.1
 
 ### This is a program that automatically copies a new message from a contact and sends to another. 
 
@@ -24,9 +24,9 @@
 ```
 
 * *Installing ChromeDriver:*
-1. Download chromedriver [**here**](https://chromedriver.chromium.org/downloads) on it's official website.
+1. Download ChromeDriver [<ins>**here**</ins>](https://chromedriver.chromium.org/downloads) on it's official website.
 2. Make sure to have the most compatible version with your browser.
-3. Paste the chromedriver.exe file on your *C:\Program Files\Python* folder.
+3. Paste the <ins>*chromedriver.exe*</ins> file on your <ins>*C:\Program Files\Python*</ins> folder.
 
 ### Using the program
 
@@ -48,7 +48,7 @@ bot.run()
 - After that, messages sent to the Input contact will automatically be sent to the Output contact.
 
 ### Group messaging
-If you're willing to copy messages from one or various persons in a group, you'll need to populate a list with their names **OR** phone numbers and then reference it on the "Bot" creation function.
+If you're willing to copy messages from one or various persons in a group, <ins>you'll need to populate a list with their names **OR** phone numbers </ins> and then reference it on the "Bot" creation function.
 
 Something like this:
 
@@ -71,7 +71,8 @@ bot.run()
 
 
 #### Things it can do:
-> * Send: Short messages, long messages, stacked messages, messages with links, pictures with text, text with emojis. Reply normal text and text with links.
+> * Send short messages, long messages, stacked phrases, messages with links, pictures with text, text with emojis. 
+> * Reply normal text, text with emojis and text with links.
 
 #### Things it can't do, yet:
 > * Send audios, stickers, pictures with no text messages with emojis only, messages with link preview.
@@ -80,13 +81,13 @@ bot.run()
 
 # Notes
 
-If you haven't saved the number of the person who's sending messages to a group, you'll need to specificy the name and number of that person in the class function. It's part of the process. 
+If you try to something not metioned in the "Things it can do" section, the program will probably crash. There are a lot of exceptions and cases that need to be analyzed and solved.
 
 I made this project for personal use only.
 
-This is the first "big" "application" i have done. I'm still new to this.
+This is the first "application" I have done. 
 
-I don't think the code is pretty, it lacks organization and may not be optimized. For now, i don't intend to update this, it has taken a lot of time from me, but i learned a lot from it.
+I don't think the code is pretty, it lacks organization and may not be optimized. For now, I won't make updates, it has taken a lot of time from me, but I've learned a lot from it.
 
-Again, the program is in a very early state, there's plenty of bugs that i haven't figured out how to solve yet. Also, it can stop working due to the browser's loading time and other exceptions.
+Again, the program is in a very early state, there's plenty of bugs that I haven't figured out how to solve yet. Also, it can stop working due to the browser's loading time and other exceptions.
 

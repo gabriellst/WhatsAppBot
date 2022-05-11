@@ -8,17 +8,19 @@ from selenium.webdriver.support import expected_conditions as ec
 import os
 
 
-def browser_anonimo():
+def browser_anonimo(save_cookies=False):
     # Setting up browser, cookie saving, reducing bot detection.
-
     options = webdriver.ChromeOptions()
     dir_path = os.getcwd()
-    profile = os.path.join(dir_path, "profile", "wpp2")
+
+    if save_cookies:
+
+        profile = os.path.join(dir_path, "profile", "WhatsAppBotProfile")
+
+        options.add_argument(
+            r"user-data-dir={}".format(profile))
 
     options.add_argument("window-size=1280,720")
-
-    options.add_argument(
-        r"user-data-dir={}".format(profile))
 
     options.add_argument(
         "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -55,8 +57,8 @@ def browser_anonimo():
 
 class Bot:
     # Defining variables
-    def __init__(self, input_contact, output_contact, messagernumber="", messagername=""):
-        self.browser = browser_anonimo()
+    def __init__(self, input_contact, output_contact, messagernumber="", messagername="", cookies=False):
+        self.browser = browser_anonimo(save_cookies=cookies)
         self.inputmsg = ""
         self.inputmsgfull = ""
         self.outputmsg = ""
@@ -65,15 +67,14 @@ class Bot:
         self.outputcontact = output_contact
         self.pendingmsg = []
         self.lastmedia = None
-        self.replymsg = None
         self.messagernumber = messagernumber
         self.messagername = messagername
         self.wait = WebDriverWait(self.browser, 10)
         self.chain = ActionChains(self.browser)
         self.key = Keys()
-        self.restarted = False
 
     # Defining main run fuction
+
     def run(self):
         self.connect()
         while True:
@@ -197,30 +198,20 @@ class Bot:
         # self.outputmsg, this message is only registered when we successfully copy all new messages,
         # The last copied message becomes the outputmsg, so, new messages are only copied if they are different.
 
-        contador = 1
+        while self.inputmsg == self.outputmsg or contact_object.text.find("digitando") != -1 or \
+                any(not_useful_messages_list):
+            # Updating the message.
+            not_useful_messages_list = contact_object.find_elements(by=By.CLASS_NAME, value='_2ad1k')
+            contact_div_message = contact_object.text.split("\n")
+            self.inputmsg = contact_div_message[-1]
+            self.inputmsg = self.inputmsg.split()
+            median_index = (len(self.inputmsg) // 2) + 1
+            self.inputmsg = self.inputmsg[0:median_index]
+            self.inputmsg = "".join(self.inputmsg)
 
-        if self.restarted:
-            contador = 2
-
-        while contador > 0:
-
-            while self.inputmsg == self.outputmsg or contact_object.text.find("digitando") != -1 or \
-                    any(not_useful_messages_list):
-                # Updating the message.
-                not_useful_messages_list = contact_object.find_elements(by=By.CLASS_NAME, value='_2ad1k')
-                contact_div_message = contact_object.text.split("\n")
-                self.inputmsg = contact_div_message[-1]
-                self.inputmsg = self.inputmsg.split()
-                median_index = (len(self.inputmsg) // 2) + 1
-                self.inputmsg = self.inputmsg[0:median_index]
-                self.inputmsg = "".join(self.inputmsg)
-
-            contador -= 1
-            print("Found a new message\n")
-            print(f"Last message sent from the input: {self.inputmsg}")
-            print(f"Last message sent to the output: {self.outputmsg}")
-
-        self.restarted = False
+        print("Found a new message\n")
+        print(f"Last message sent from the input: {self.inputmsg}")
+        print(f"Last message sent to the output: {self.outputmsg}")
 
         # After verifying a new message, the contact is clicked so we can copy messages from it.
 
@@ -279,7 +270,17 @@ class Bot:
                 msg_div_text = ""
                 print(f"Selected div doesn't have text\n")
 
-            if html_code.find("img") != -1:
+            if html_code.find("mention") != -1:
+                if any(self.pendingmsg):
+                    self.send_pending_msgs()
+
+                print(f"Repplied text being sent {msg_div_text}\n")
+                reply_text = self.reply_message(html_code)
+                self.pendingmsg.append(reply_text)
+                self.insert_send_msgs()
+                self.outputmsg = reply_text.split()
+
+            elif html_code.find("img") != -1:
                 self.lastmedia = messages_divs[index]
                 if any(self.pendingmsg):
                     self.send_pending_msgs()
@@ -300,16 +301,6 @@ class Bot:
 
                 self.search_click(self.inputcontact)
                 break
-
-            elif html_code.find("mention") != -1:
-                if any(self.pendingmsg):
-                    self.send_pending_msgs()
-
-                print(f"Repplied text being sent {msg_div_text}\n")
-                reply_text = self.reply_message(html_code)
-                self.pendingmsg.append(reply_text)
-                self.insert_send_msgs()
-                self.outputmsg = reply_text.split()
             else:
                 self.pendingmsg.append(msg_div_text)
 
@@ -335,7 +326,10 @@ class Bot:
     def find_text_divs(self):
         messages_div_xpath = "//div[contains(@class, '_2wUmf')]"
         messages_div_list = self.browser.find_elements(by=By.XPATH, value=messages_div_xpath)
+        self.wait.until(ec.presence_of_all_elements_located((By.XPATH, messages_div_xpath)))
+
         # Since we need to check the new messages first, the list needs to be flipped.
+
         return messages_div_list[::-1]
 
     def find_messages_text(self):
@@ -343,8 +337,11 @@ class Bot:
         concatenatedlist = []
         messages_divs = self.find_text_divs()
         for element in messages_divs:
-            self.wait.until(ec.visibility_of(element))
-            if element.get_attribute("className").find("message") == -1:
+            try:
+                if element.get_attribute("className").find("message") == -1:
+                    messageslist.append(None)
+                    continue
+            except:
                 messageslist.append(None)
                 continue
 
@@ -358,10 +355,10 @@ class Bot:
                 splitted_message = splitted_message[0:-1]
 
             if any(splitted_message):
+                if splitted_message[0] == "Encaminhada":
+                    splitted_message = splitted_message[1:]
                 if self.messagername != "":
-                    while splitted_message[0].find(self.messagernumber) != -1 or splitted_message[0].find(
-                            self.messagername) != -1:
-                        print("iteration")
+                    while splitted_message[0] in self.messagernumber or splitted_message[0] in self.messagername:
                         print(f"Splitted message from contact = {splitted_message}")
                         splitted_message = splitted_message[1:]
 
@@ -384,9 +381,7 @@ class Bot:
     def insert_send_msgs(self):
         sleep(0.5)
         print(f"Sending messages to {self.outputcontact}\n")
-        writing_box = self.browser.find_element(by=By.XPATH,
-                                                value='//*[@id="main"]/footer/div[1]/div/span[2]/div/div[2]/div['
-                                                      '1]/div/div[2]')
+        writing_box = self.browser.find_element(by=By.XPATH, value='//*[@id="main"]/footer/div[1]/div/span[2]/div/div[2]/div[''1]/div/div[2]')
 
         for mensagem in self.pendingmsg:
             message_split = mensagem.split("\n")
@@ -421,7 +416,11 @@ class Bot:
                     repplied_text_div = messages_divs[index]
                     break
 
-        self.hover_and_execute(repplied_text_div, command="reply")
+        mediatype = ""
+        if html_code.find("img") != -1:
+            mediatype = "Foto"
+
+        self.hover_and_execute(repplied_text_div, command="reply", mediatype=mediatype)
 
         return reply_msg
 
@@ -448,6 +447,8 @@ class Bot:
 
     def forward_message(self, html_code):
 
+        mediatype = ""
+
         messages_divs_reload = self.find_text_divs()
 
         for div in messages_divs_reload:
@@ -472,9 +473,7 @@ class Bot:
 
         forward_button.click()
 
-        search_box = self.browser.find_element(by=By.XPATH,
-                                               value='//*[@id="app"]/div[1]/span[2]/div[1]/span/div['
-                                                     '1]/div/div/div/div/div/div[1]/div/label/div/div[2]')
+        search_box = self.browser.find_element(by=By.XPATH, value='//*[@id="app"]/div[1]/span[2]/div[1]/span/div[1]/div/div/div/div/div/div[1]/div/label/div/div[2]')
 
         self.wait.until(ec.visibility_of(search_box))
 
@@ -482,10 +481,7 @@ class Bot:
 
         sleep(0.5)
 
-        contact_button = self.browser.find_element(by=By.XPATH,
-                                                   value='//*[@id="app"]/div[1]/span[2]/div[1]/span/div['
-                                                         '1]/div/div/div/div/div/div[2]/div/div/div/div['
-                                                         '1]/button/div[2]/div')
+        contact_button = self.browser.find_element(by=By.XPATH, value='//*[@id="app"]/div[1]/span[2]/div[1]/span/div[1]/div/div/div/div/div/div[2]/div/div/div/div[1]/button/div[2]/div')
 
         sleep(0.5)
 
@@ -493,8 +489,7 @@ class Bot:
 
         contact_button.click()
 
-        last_foward_button = self.browser.find_element(by=By.XPATH,
-                                                       value='//*[@id="app"]/div[1]/span[2]/div[1]/span/div[1]/div/div/div/div/div/span/div/div')
+        last_foward_button = self.browser.find_element(by=By.XPATH, value='//*[@id="app"]/div[1]/span[2]/div[1]/span/div[1]/div/div/div/div/div/span/div/div')
 
         self.wait.until(ec.visibility_of(last_foward_button))
 
@@ -507,7 +502,6 @@ class Bot:
     def hover_and_execute(self, webelement, **kwargs):
 
         command = kwargs.get("command")
-        mediatype = kwargs.get('mediatype')
 
         if command == "forward":
             command_name = "Encaminhar"
@@ -515,9 +509,6 @@ class Bot:
             command_name = "Responder"
 
         arrow_class_name = '_3e9My'
-
-        if mediatype == "Foto":
-            arrow_class_name = '_3sryO'
 
         content_box = webelement.find_element(by=By.TAG_NAME, value="div")
 
@@ -528,7 +519,8 @@ class Bot:
         try:
             arrow = self.browser.find_element(by=By.CLASS_NAME, value=arrow_class_name)
         except:
-            print("Couldnt find arrow")
+            arrow_class_name = '_3sryO'
+            arrow = self.browser.find_element(by=By.CLASS_NAME, value=arrow_class_name)
 
         arrow.click()
 
@@ -542,3 +534,5 @@ class Bot:
             if option.text.find(command_name) != -1:
                 option.click()
                 break
+
+# End

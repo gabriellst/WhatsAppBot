@@ -59,7 +59,7 @@ from whatsappbot import Bot
 input_contact_name = "Group 1"
 output_contact_name = "Group 2"
 
-messager_names = ["Gabriel", "Davy", "Thalles", "Davi", "Guilherme", "Caio", "Luiz", "Cândido"]
+messager_names = ["Gabriel", "Marcos", "Thalles", "Davi", "Guilherme", "Caio", "Luiz", "Cândido"]
 
 messager_numbers = ["+55 61 3686-4237", "+55 91 3613-3162"]
 
@@ -69,19 +69,18 @@ bot.run()
 
 ```
 
-
 #### Things it can do:
-> * Send short messages, long messages, stacked phrases, messages with links, pictures with text, text with emojis. 
+> * Send short messages, long messages, stacked phrases, messages with links without a link preview, pictures with text, text with emojis. 
 > * Reply normal text, text with emojis and text with links.
 
 #### Things it can't do, yet:
-> * Send audios, stickers, pictures with no text messages with emojis only, messages with link preview.
+> * Send audios, stickers, pictures with no text, messages with emojis only, messages with a link preview.
 > * Reply audios, stickers and pictures.
 > * These features will be implemented within further updates.
 
 # Notes
 
-If you try to something not metioned in the "Things it can do" section, the program will probably crash. There are a lot of exceptions and cases that need to be analyzed and solved.
+If you try to do something not metioned in the "Things it can do" section, the program will probably crash. There are a lot of exceptions and cases that need to be analyzed and solved.
 
 I made this project for personal use only.
 
@@ -90,4 +89,3 @@ This is the first "application" I have done.
 I don't think the code is pretty, it lacks organization and may not be optimized. For now, I won't make updates, it has taken a lot of time from me, but I've learned a lot from it.
 
 Again, the program is in a very early state, there's plenty of bugs that I haven't figured out how to solve yet. Also, it can stop working due to the browser's loading time and other exceptions.
-

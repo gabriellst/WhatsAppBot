@@ -1,4 +1,4 @@
-# WhatsApp Auto Message Fowarder Bot - Alpha 1.0.0
+# WhatsApp Auto Message Fowarder Bot - Alpha v1.0.0
 
 ### This is a program that automatically sends a message from a contact to another. 📧
 

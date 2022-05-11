@@ -4,7 +4,7 @@
 
 - The purpose of this project is to find a way to automate information propagation.
 
-- It is in a **very early state**.
+- It is in a **very early state**. Bugs are expected.
 
 - I've made it using Python and Selenium Library.
 

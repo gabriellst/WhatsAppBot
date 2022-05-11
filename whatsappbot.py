@@ -110,13 +110,13 @@ class Bot:
         print(f"Searching for: {contact_to_search} in contact list\n")
         while True:
             try:
-                # Endereço da caixa de pesquisa e envio do nome do contato que quer pesquisar
+                # Defining the contact search box xpath and searching for the input contact.
                 searcher_box_xpath = '//*[@id="side"]/div[1]/div/label/div/div[2]'
                 searcher_box = self.browser.find_element(by=By.XPATH, value=searcher_box_xpath)
                 searcher_box.clear()
                 searcher_box.send_keys(contact_to_search)
 
-                # Esperar a presença dos botoes
+                # Waiting for the buttons to show up.
 
                 self.wait.until(ec.presence_of_all_elements_located((By.CLASS_NAME, '_3m_Xw')))
 

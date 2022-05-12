@@ -30,7 +30,7 @@
 
 ### Using the program
 
-- Import our "Bot" class and inform those contact names who you want to exchange messages.
+- Import our "Bot" class and inform those contact names which you want to exchange messages with.
 
 ```html
 from whatsappbot import Bot
